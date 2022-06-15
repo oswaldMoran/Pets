@@ -1,4 +1,5 @@
-﻿using System;
+﻿using PetFamily.Models;
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
@@ -16,9 +17,10 @@ namespace PetFamily
         /// test
         /// </summary>
         /// <returns></returns>
-        public List<string> GetNamePets()
+        public List<MyPets> GetNamePets()
         {
-            List<string> mascotas = new List<string>();
+            MyPets mascota = new MyPets();
+            List<MyPets> mascotas = new List<MyPets>();
             try
             {
 
@@ -32,14 +34,16 @@ namespace PetFamily
                         SqlDataReader resultInDataReader = comandoSql.ExecuteReader();
                         while (resultInDataReader.Read())
                         {
-                            string name = resultInDataReader[0].ToString();
-                            mascotas.Add(name);
+                            mascota.Id = (int)resultInDataReader[0];
+                            mascota.Name = resultInDataReader[1].ToString();
+                            mascota.Description = resultInDataReader[2].ToString();
+                            mascota.Gender = resultInDataReader[3].ToString();
+                            mascota.IsStillAlive = (bool)resultInDataReader[4];
+                            mascotas.Add(mascota);
                         }
                     }
 
                 }
-                //
-
             }
             catch (Exception e)
             {
@@ -48,6 +52,41 @@ namespace PetFamily
             }
 
             return mascotas;
+        }
+
+        public MyPets GetPetById(int id)
+        {
+            MyPets mascota = new MyPets();
+            try
+            {
+
+                using (SqlConnection conexion = new SqlConnection(ConexionWithSPets))
+                {
+                    conexion.Open();
+                    if (conexion.State == ConnectionState.Open)
+                    {
+                        SqlCommand comandoSql = new SqlCommand("SP_GetPetsById", conexion);
+                        comandoSql.Parameters.Add("@Id", SqlDbType.Int).Value = id;
+                        comandoSql.CommandType = CommandType.StoredProcedure;
+                        SqlDataReader dt = comandoSql.ExecuteReader();
+                        while (dt.Read())
+                        {
+                            mascota.Id = (int)dt[0];
+                            mascota.Name = dt[1].ToString();
+                            mascota.Description = dt[2].ToString();
+                            mascota.Gender = dt[3].ToString();
+                            mascota.IsStillAlive = (bool)dt[4];
+                        }
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+
+                Console.WriteLine("La conexion no sepudo realizar");
+            }
+
+            return mascota;
         }
         /// <summary>
         /// this method return false when the main transaction failed otherwise returns true.
@@ -80,10 +119,73 @@ namespace PetFamily
             }
             catch (Exception e)
             {
-                Console.WriteLine("La conexion no sepudo realizar");
+                Console.WriteLine("La acción no se pudo completar, intentalo mas tarde");
             }
             return res;
         }
+
+        public bool UpdatePets(int Id,string name, string description, char gender, bool isStillAlive)
+        {
+            bool resp1 = false;
+            try
+            {
+                using (SqlConnection conexion = new SqlConnection(ConexionWithSPets))
+                {
+                    conexion.Open();
+                    if (conexion.State == ConnectionState.Open)
+                    {
+                        SqlCommand comandoSql = new SqlCommand("SP_UpdatePet", conexion);
+                        comandoSql.Parameters.Add("@Id", SqlDbType.Int).Value = Id;
+                        comandoSql.Parameters.Add("@Name", SqlDbType.VarChar).Value = name;
+                        comandoSql.Parameters.Add("@Description ", SqlDbType.VarChar).Value = description;
+                        comandoSql.Parameters.Add("@Gender ", SqlDbType.Char).Value = gender;
+                        comandoSql.Parameters.Add("@IsStilAlive ", SqlDbType.Bit).Value = isStillAlive;
+
+                        comandoSql.CommandType = CommandType.StoredProcedure;
+                        int UpdateResult = comandoSql.ExecuteNonQuery();
+                        if (UpdateResult > 0)
+                        {
+                            resp1 = true;
+                        }
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("La acción no se pudo completar, intentalo mas tarde.");
+            }
+            return resp1;
+        }
+
+
+        public bool DeletePets(int Id)
+        {
+            bool resp2 = false;
+            try
+            {
+                using (SqlConnection conexion = new SqlConnection(ConexionWithSPets))
+                {
+                    conexion.Open();
+                    if (conexion.State == ConnectionState.Open)
+                    {
+                        SqlCommand comandoSql = new SqlCommand("SP_DeletePet", conexion);
+                        comandoSql.Parameters.Add("@Id", SqlDbType.Int).Value = Id;
+                        comandoSql.CommandType = CommandType.StoredProcedure;
+                        int delteResult = comandoSql.ExecuteNonQuery();
+                        if (delteResult > 0)
+                        {
+                            resp2 = true;
+                        }
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("La acción no se pudo completar, intentalo mas tarde.");
+            }
+            return resp2;
+        }
+
 
     }
 }

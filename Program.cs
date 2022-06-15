@@ -6,9 +6,14 @@
 using PetFamily;
 
 PetsClass petDbObj = new PetsClass();
+var res = petDbObj.GetPetById(9);
+Console.WriteLine($"{res.Name} {res.Description} {res.Gender} {res.IsStillAlive} {res.Id}");
+//bool respUpdate = petDbObj.UpdatePets(6,"Wesker", "perrillo callejero", 'M',true);
+//Console.WriteLine(respUpdate ? "se pudo" : "no se pudo");
 
-////bool comp = petDbObj.InsertPets("Los perritos", "perrillos que acaban de nacer","M",true);
-////Console.WriteLine(comp ? "se pudo":"no se pudo");
+//bool respDelete = petDbObj.DeletePets(14);
+//Console.WriteLine(respDelete ? "se pudo" : "no se pudo");
+/*
 bool resp = false;
 List<string> NameList = petDbObj.GetNamePets();
 List<string> coincidencias = new List<string>();    
@@ -43,6 +48,5 @@ while (!resp)
         }
     }
 
-
-
 }
+*/
