@@ -4,49 +4,147 @@
 //mostrar el resultado al usuario
 
 using PetFamily;
+using PetFamily.Models;
 
-PetsClass petDbObj = new PetsClass();
-var res = petDbObj.GetPetById(9);
-Console.WriteLine($"{res.Name} {res.Description} {res.Gender} {res.IsStillAlive} {res.Id}");
-//bool respUpdate = petDbObj.UpdatePets(6,"Wesker", "perrillo callejero", 'M',true);
-//Console.WriteLine(respUpdate ? "se pudo" : "no se pudo");
+PetsClass objPetClas = new PetsClass();
+List<int> ids = new List<int>();
+int answerUser;
 
-//bool respDelete = petDbObj.DeletePets(14);
-//Console.WriteLine(respDelete ? "se pudo" : "no se pudo");
-/*
-bool resp = false;
-List<string> NameList = petDbObj.GetNamePets();
-List<string> coincidencias = new List<string>();    
-while (!resp)
+bool answerBool = false;
+
+bool resp = true;
+
+do
+
 {
-    Console.WriteLine("ingresa tu busqueda:");
-    string nameDog = Console.ReadLine();
 
 
-    foreach (var name in NameList)
+
+    Console.WriteLine("Elije la opción que con la que desees interactuar:");
+
+    Console.WriteLine("1.- Insertar");
+
+    Console.WriteLine("2.- Consultar ");
+
+    Console.WriteLine("3.- Actualizar ");
+
+    Console.WriteLine("4.- Eliminar ");
+
+    string optionUser = Console.ReadLine();
+
+    int.TryParse(optionUser, out answerUser);
+
+    switch (answerUser)
     {
-        if (name.Contains(nameDog)) //determina si existe una coincidencia entre strings y regresa un boolean
-        {
-            coincidencias.Add(name);
-            resp = true;
-        }
+        case 1:
+            var datosUsuario = PedirDatosPet();
+            objPetClas.InsertPets(datosUsuario.Name, datosUsuario.Description, datosUsuario.Gender, datosUsuario.IsStillAlive);
+
+            break;
+        case 2:
+            ConsultMethodPets();
+            break;
+        case 3:
+            List<MyPets> petlst = ConsultMethodPets();
+            int registroActualizar = CorrectInputForInt("Cual deseas actualizar", petlst.Select(v => v.Id).ToList());
+            var datos = PedirDatosPet();
+            objPetClas.UpdatePets(registroActualizar, datos.Name, datos.Description, datos.Gender[0], datos.IsStillAlive);
+            break;
+        case 4:
+
+            List<MyPets> ConsultPetList = ConsultMethodPets();
+            int registroEliminar = CorrectInputForInt("elige el numero a eliminar", ConsultPetList.Select(v => v.Id).ToList());
+
+            bool dltpetlst = objPetClas.DeletePets(registroEliminar);
+            if (dltpetlst)
+            {
+                Console.WriteLine("Mascota Elimiada");
+            }
+            break;
+            default:
+            //Console.WriteLine("Opcion invalida");
+           
+            Console.WriteLine("Cuantos años tienes?");
+            bool resultParseo = int.TryParse(Console.ReadLine(), out int edad);
+            if (resultParseo)
+            {
+                string respuesta = UserAge(edad);
+                Console.WriteLine(respuesta);
+            }
+            break;
     }
 
-    if (!resp)
+    Console.WriteLine($"Desea intentarlo  S/N");
+    resp = Console.ReadLine().ToLower().Contains("s");
+
+} while (resp);
+
+
+
+MyPets PedirDatosPet()
+{
+    Console.WriteLine("Ingresa el nombre de tu mascota");
+    string nombre = Console.ReadLine();
+    Console.WriteLine("Ingresa su descripcion");
+    string descripcion = Console.ReadLine();
+    Console.WriteLine("Ingresa su genero M / H");
+    string genero = Console.ReadLine();
+    Console.WriteLine("sigue con vida?");
+    bool vive = Console.ReadLine().Contains("si");
+    var response = new MyPets
     {
-        Console.WriteLine("No existen coicidencias");
-        Console.WriteLine("Ahora Ingresa el nombre:");
-        string newDog = Console.ReadLine();
-        NameList.Add(newDog);
-        Console.WriteLine($"el nombre {newDog} ha sido agregado");
+        Name = nombre,
+        Description = descripcion,
+        Gender = genero,
+        IsStillAlive = vive
+    };
+    return response;
+}
+
+
+int CorrectInputForInt(string description, List<int> limit)
+{
+    bool response = false;
+    int finalValue = 0;
+    while (!response)
+    {
+        Console.WriteLine(description);
+        var value = Console.ReadLine();
+        response = int.TryParse(value, out finalValue);
+        var exist = limit.FirstOrDefault(value => value == finalValue);
+        if (finalValue == 0 || exist == 0)
+        {
+            response = false;
+            Console.WriteLine("incorrect data, try again.");
+        }
+    }
+    return finalValue;
+}
+
+List<MyPets> ConsultMethodPets()
+{
+    List<MyPets> SelectPetList = objPetClas.GetNamePets();
+    foreach (var pet in SelectPetList)
+    {
+        Console.WriteLine($"{pet.Id} | {pet.Name} | {pet.Description} | {pet.Gender} | {(pet.IsStillAlive ? "Vivo" : "sin vida")} ");
+    }
+
+    return SelectPetList;
+}
+
+string UserAge(int edad)
+{
+    string resp = null;
+ 
+    if (edad > 18)
+    {
+
+        resp = "mayor";
     }
     else
     {
-        foreach (var perros in coincidencias)
-        {
-            Console.WriteLine(perros);
-        }
+        resp = "menor";
     }
 
+    return resp;
 }
-*/

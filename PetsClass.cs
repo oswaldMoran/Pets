@@ -19,7 +19,6 @@ namespace PetFamily
         /// <returns></returns>
         public List<MyPets> GetNamePets()
         {
-            MyPets mascota = new MyPets();
             List<MyPets> mascotas = new List<MyPets>();
             try
             {
@@ -33,13 +32,15 @@ namespace PetFamily
                         comandoSql.CommandType = CommandType.StoredProcedure;
                         SqlDataReader resultInDataReader = comandoSql.ExecuteReader();
                         while (resultInDataReader.Read())
-                        {
-                            mascota.Id = (int)resultInDataReader[0];
-                            mascota.Name = resultInDataReader[1].ToString();
-                            mascota.Description = resultInDataReader[2].ToString();
-                            mascota.Gender = resultInDataReader[3].ToString();
-                            mascota.IsStillAlive = (bool)resultInDataReader[4];
-                            mascotas.Add(mascota);
+                        { 
+                            mascotas.Add(new MyPets
+                            {
+                                Id = (int)resultInDataReader[0],
+                                Name = resultInDataReader[1].ToString(),
+                                Description = resultInDataReader[2].ToString(),
+                                Gender = resultInDataReader[3].ToString(),
+                                IsStillAlive = (bool)resultInDataReader[4],
+                            });
                         }
                     }
 
@@ -88,11 +89,14 @@ namespace PetFamily
 
             return mascota;
         }
+
+      
+
         /// <summary>
         /// this method return false when the main transaction failed otherwise returns true.
         /// </summary>
         /// <returns>boolean</returns>
-        public bool InsertPets(string name,string description,String gender,bool isStillAlive)
+        public bool InsertPets(string name, string description, string gender, bool isStillAlive)
         {
             bool res = false;
             try
@@ -124,7 +128,7 @@ namespace PetFamily
             return res;
         }
 
-        public bool UpdatePets(int Id,string name, string description, char gender, bool isStillAlive)
+        public bool UpdatePets(int Id, string name, string description, char gender, bool isStillAlive)
         {
             bool resp1 = false;
             try
