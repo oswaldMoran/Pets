@@ -20,52 +20,62 @@ do
 
 
 
-        Console.WriteLine("Elije la opción que con la que desees interactuar:");
+    Console.WriteLine("Elije la opción que con la que desees interactuar:");
 
-        Console.WriteLine("1.- Insertar");
+    Console.WriteLine("1.- Insertar");
 
-        Console.WriteLine("2.- Consultar ");
+    Console.WriteLine("2.- Consultar ");
 
-        Console.WriteLine("3.- Actualizar ");
+    Console.WriteLine("3.- Actualizar ");
 
-        Console.WriteLine("4.- Eliminar ");
+    Console.WriteLine("4.- Eliminar ");
 
-        string optionUser = Console.ReadLine();
+    string optionUser = Console.ReadLine();
 
-        int.TryParse(optionUser, out answerUser);
+    int.TryParse(optionUser, out answerUser);
 
-        switch (answerUser)
+    switch (answerUser)
+    {
+        case 1:
+            var datosUsuario = PedirDatosPet();
+            objPetClas.InsertPets(datosUsuario.Name, datosUsuario.Description, datosUsuario.Gender, datosUsuario.IsStillAlive);
 
-        {
+            break;
+        case 2:
+            ConsultMethodPets();
+            break;
+        case 3:
+            List<MyPets> petlst = ConsultMethodPets();
+            int registroActualizar = CorrectInputForInt("Cual deseas actualizar", petlst.Select(v => v.Id).ToList());
+            var datos = PedirDatosPet();
+            objPetClas.UpdatePets(registroActualizar, datos.Name, datos.Description, datos.Gender[0], datos.IsStillAlive);
+            break;
+        case 4:
 
-            case 1:
-                var datosUsuario = PedirDatosPet();
-                objPetClas.InsertPets(datosUsuario.Name, datosUsuario.Description, datosUsuario.Gender, datosUsuario.IsStillAlive);
+            List<MyPets> ConsultPetList = ConsultMethodPets();
+            int registroEliminar = CorrectInputForInt("elige el numero a eliminar", ConsultPetList.Select(v => v.Id).ToList());
 
-                break;
-            case 2:
-                List<MyPets> SelectPetList = objPetClas.GetNamePets();
-                foreach (var pet in SelectPetList)
-                {
-                    Console.WriteLine($"{pet.Name} | {pet.Description} | {pet.Gender} | {(pet.IsStillAlive ? "Vivo" : "sin vida")} ");
-                }
-                break;
-            case 3:
-                List<MyPets> petlst = objPetClas.GetNamePets();
-                foreach (var pet in petlst)
-                {
-                    Console.WriteLine($"{pet.Id} , {pet.Name},{pet.Description}{pet.Gender},{pet.IsStillAlive}");
-                }
-                
-                int registroActualizar =  CorrectInputForInt("Cual deseas actualizar", petlst.Select(v => v.Id).ToList());
-                var datos = PedirDatosPet();
-                objPetClas.UpdatePets(registroActualizar, datos.Name, datos.Description, datos.Gender[0], datos.IsStillAlive);
-                break;
+            bool dltpetlst = objPetClas.DeletePets(registroEliminar);
+            if (dltpetlst)
+            {
+                Console.WriteLine("Mascota Elimiada");
+            }
+            break;
+            default:
+            //Console.WriteLine("Opcion invalida");
+           
+            Console.WriteLine("Cuantos años tienes?");
+            bool resultParseo = int.TryParse(Console.ReadLine(), out int edad);
+            if (resultParseo)
+            {
+                string respuesta = UserAge(edad);
+                Console.WriteLine(respuesta);
+            }
+            break;
+    }
 
-        }
-
-        Console.WriteLine($"Desea intentarlo  S/N");
-        resp = Console.ReadLine().ToLower().Contains("s");
+    Console.WriteLine($"Desea intentarlo  S/N");
+    resp = Console.ReadLine().ToLower().Contains("s");
 
 } while (resp);
 
@@ -92,7 +102,7 @@ MyPets PedirDatosPet()
 }
 
 
-int CorrectInputForInt(string description,List<int> limit)
+int CorrectInputForInt(string description, List<int> limit)
 {
     bool response = false;
     int finalValue = 0;
@@ -109,4 +119,32 @@ int CorrectInputForInt(string description,List<int> limit)
         }
     }
     return finalValue;
+}
+
+List<MyPets> ConsultMethodPets()
+{
+    List<MyPets> SelectPetList = objPetClas.GetNamePets();
+    foreach (var pet in SelectPetList)
+    {
+        Console.WriteLine($"{pet.Id} | {pet.Name} | {pet.Description} | {pet.Gender} | {(pet.IsStillAlive ? "Vivo" : "sin vida")} ");
+    }
+
+    return SelectPetList;
+}
+
+string UserAge(int edad)
+{
+    string resp = null;
+ 
+    if (edad > 18)
+    {
+
+        resp = "mayor";
+    }
+    else
+    {
+        resp = "menor";
+    }
+
+    return resp;
 }
